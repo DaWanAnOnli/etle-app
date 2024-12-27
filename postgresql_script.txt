@@ -1,0 +1,21 @@
+CREATE DATABASE etle_app;
+\c etle_app;
+
+CREATE TABLE my_table (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMP NOT NULL,
+    plate_number TEXT NOT NULL,
+    type INT NOT NULL,
+    location TEXT NOT NULL,
+    video_url TEXT NOT NULL
+);
+
+INSERT INTO my_table (timestamp, plate_number, type, location, video_url)
+VALUES (
+    NOW(),
+    'B1234XYZ',
+    1,
+    'Surabaya',
+    'https://drive.google.com/file/d/VIDEO_ID/view?usp=sharing'
+);
+
