@@ -1,20 +1,33 @@
-from django.shortcuts import render
-import psycopg2
+from django.shortcuts import redirect, render
+from datetime import datetime
+from etle_app.config import get_connection
 
 def display_table(request):
-    connection = psycopg2.connect(
-        dbname="etle_app",
-        user="postgres",# Replace with your PostgreSQL username
-        password="@ik4nkus",  # Replace with your PostgreSQL password
-        host="localhost",
-        port="5432" # Replace with your PostgreSQL IP
-    )
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM violation;")
-    data = cursor.fetchall()
-    columns = [desc[0] for desc in cursor.description]
+    session_id = request.COOKIES.get("session_id")
 
-    cursor.close()
-    connection.close()
+    if not session_id:  # No session cookie present
+        return redirect('/auth/login/')
 
-    return render(request, "table.html", {"columns": columns, "data": data})
+    DATABASE_CONFIG = get_connection()
+    cursor = DATABASE_CONFIG.cursor()
+
+    try:
+        # Check if session is valid
+        cursor.execute(
+            "SELECT user_id FROM sessions WHERE session_id = %s AND expires_at > %s",
+            (session_id, datetime.now())
+        )
+        session = cursor.fetchone()
+
+        if not session:  # Session is invalid or expired
+            return redirect('/auth/login/')
+
+        # Session is valid; fetch the table data
+        cursor.execute("SELECT * FROM violation;")
+        data = cursor.fetchall()
+        columns = [desc[0] for desc in cursor.description]
+
+        return render(request, "table.html", {"columns": columns, "data": data})
+    finally:
+        cursor.close()
+        DATABASE_CONFIG.close()

@@ -1,21 +1,34 @@
 CREATE DATABASE etle_app;
 \c etle_app;
 
-CREATE TABLE my_table (
+CREATE TABLE violation (
     id SERIAL PRIMARY KEY,
-    timestamp TIMESTAMP NOT NULL,
-    plate_number TEXT NOT NULL,
-    type INT NOT NULL,
-    location TEXT NOT NULL,
-    video_url TEXT NOT NULL
+    status INTEGER,
+    type INTEGER,
+    plate_number TEXT,
+    timestamp TIMESTAMP,
+    location TEXT,
+    video_url TEXT
 );
 
-INSERT INTO my_table (timestamp, plate_number, type, location, video_url)
-VALUES (
-    NOW(),
-    'B1234XYZ',
-    1,
-    'Surabaya',
-    'https://drive.google.com/file/d/VIDEO_ID/view?usp=sharing'
+INSERT INTO violation (status, type, plate_number, timestamp, location, video_url)
+VALUES 
+(1, 1, 'B1234XYZ', NOW(), 'Surabaya', 'https://drive.google.com/file/d/VIDEO_ID_1/view?usp=sharing'),
+(0, 2, 'D5678ABC', NOW(), 'Jakarta', 'https://drive.google.com/file/d/VIDEO_ID_2/view?usp=sharing');
+
+
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL, -- Store securely hashed passwords
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
+
+CREATE TABLE sessions (
+    session_id TEXT PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT NOW(),
+    expires_at TIMESTAMP NOT NULL
+);
