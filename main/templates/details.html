@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Details</title>
+</head>
+<body>
+    <a href="/">Back</a>
+    <h1>Details</h1>
+    <table border="1">
+        <tbody>
+            {% for column, value in details_data %}
+                <tr>
+                    <th>{{ column }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" name="action" value="confirm">Confirm</button>
+        <button type="submit" name="action" value="deny">Deny</button>
+    </form>
+</body>
+</html>

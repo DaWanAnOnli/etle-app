@@ -5,26 +5,25 @@
 </head>
 <body>
     <a href="/auth/logout/">Logout</a>
+    <h1>Data Table</h1>
     <table border="1">
         <thead>
             <tr>
                 {% for column in columns %}
                     <th>{{ column }}</th>
                 {% endfor %}
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for row in data %}
                 <tr>
                     {% for cell in row %}
-                        <td>
-                            {% if forloop.last %}
-                                <a href="{{ cell }}" target="_blank">{{ cell }}</a>
-                            {% else %}
-                                {{ cell }}
-                            {% endif %}
-                        </td>
+                        <td>{{ cell }}</td>
                     {% endfor %}
+                    <td>
+                        <a href="/details/{{ row.0 }}/">Details</a>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
