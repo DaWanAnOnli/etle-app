@@ -1,11 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <a href="/auth/logout/">Logout</a>
     <title>Data Table</title>
 </head>
 <body>
-    <a href="/auth/logout/">Logout</a>
     <h1>Data Table</h1>
+
+    <!-- Filter and Sort Form -->
+    <form method="GET" action="/">
+        <!-- Time Filter -->
+        <label for="time_filter">Time:</label>
+        <select name="time_filter" id="time_filter">
+            <option value="all" {% if filters.time_filter == 'all' %}selected{% endif %}>All Time</option>
+            <option value="today" {% if filters.time_filter == 'today' %}selected{% endif %}>Today</option>
+            <option value="past_week" {% if filters.time_filter == 'past_week' %}selected{% endif %}>Past Week</option>
+            <option value="past_month" {% if filters.time_filter == 'past_month' %}selected{% endif %}>Past Month</option>
+            <option value="past_year" {% if filters.time_filter == 'past_year' %}selected{% endif %}>Past Year</option>
+        </select>
+
+        <!-- Status Filter -->
+        <label for="status_filter">Status:</label>
+        <select name="status_filter" id="status_filter" multiple>
+            <option value="0" {% if "0" in filters.status_filter %}selected{% endif %}>0</option>
+            <option value="1" {% if "1" in filters.status_filter %}selected{% endif %}>1</option>
+            <option value="2" {% if "2" in filters.status_filter %}selected{% endif %}>2</option>
+            <option value="3" {% if "3" in filters.status_filter %}selected{% endif %}>3</option>
+        </select>
+
+        <!-- Type Filter -->
+        <label for="type_filter">Type:</label>
+        <select name="type_filter" id="type_filter" multiple>
+            <option value="0" {% if "0" in filters.type_filter %}selected{% endif %}>0</option>
+            <option value="1" {% if "1" in filters.type_filter %}selected{% endif %}>1</option>
+            <option value="2" {% if "2" in filters.type_filter %}selected{% endif %}>2</option>
+        </select>
+
+        <!-- Sort Order -->
+        <label for="sort_order">Sort:</label>
+        <select name="sort_order" id="sort_order">
+            <option value="desc" {% if filters.sort_order == 'desc' %}selected{% endif %}>Recent -> Old</option>
+            <option value="asc" {% if filters.sort_order == 'asc' %}selected{% endif %}>Old -> Recent</option>
+        </select>
+
+        <!-- Submit Button -->
+        <button type="submit">Apply</button>
+    </form>
+
+    <!-- Data Table -->
     <table border="1">
         <thead>
             <tr>
