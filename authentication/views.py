@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 def signup(request):
     session_id = request.COOKIES.get("session_id")
 
-    # If the user is already logged in, redirect to the main page
+    # Check if the user is already logged in
     if session_id:
         connection = get_connection()
         cursor = connection.cursor()
@@ -27,13 +27,15 @@ def signup(request):
             cursor.close()
             connection.close()
 
+    # Handle POST request for signup
     if request.method == 'POST':
         data = request.POST
         username = data.get('username')
         password = data.get('password')
 
+        # Validate username and password input
         if not username or not password:
-            return render(request, "signup.html", {"error": "Username and password are required."})
+            return render(request, "login.html", {"error": "Username and password are required.", "active": "signup"})
 
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
@@ -41,20 +43,41 @@ def signup(request):
         cursor = connection.cursor()
 
         try:
+            # Insert new user into the database
             cursor.execute(
                 "INSERT INTO users (username, password_hash) VALUES (%s, %s)",
                 (username, hashed_password)
             )
             connection.commit()
-            return redirect('/auth/login/')
+
+            # Automatically log in the user
+            cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
+            user_id = cursor.fetchone()[0]
+
+            # Create session
+            session_id = str(uuid.uuid4())
+            expires_at = datetime.now() + timedelta(days=1)
+            cursor.execute(
+                "INSERT INTO sessions (session_id, user_id, expires_at) VALUES (%s, %s, %s)",
+                (session_id, user_id, expires_at)
+            )
+            connection.commit()
+
+            # Set session cookie and redirect to home page
+            response = redirect('/')
+            response.set_cookie('session_id', session_id, max_age=86400, httponly=True)
+            return response
+
         except psycopg2.IntegrityError:
+            # Username already exists
             connection.rollback()
-            return render(request, "signup.html", {"error": "Username already exists."})
+            return render(request, "login.html", {"error": "Username already exists.", "active": "signup"})
         finally:
             cursor.close()
             connection.close()
 
-    return render(request, "signup.html")
+    # Render the login page for GET requests, with signup active
+    return render(request, "login.html", {"active": "signup"})
 
 
 

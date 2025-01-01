@@ -10,7 +10,7 @@ def get_connection():
     return psycopg2.connect(
     dbname="etle_app",
     user="postgres",
-    password="@ik4nkus",  # Replace with your PostgreSQL password
+    password="abcd",  # Replace with your PostgreSQL password
     host="localhost",
     port="5432"
 )
