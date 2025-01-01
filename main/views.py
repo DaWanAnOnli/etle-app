@@ -26,11 +26,12 @@ def display_table(request):
         if not session:
             return redirect('/auth/login/')
 
-        # Default filter and sort conditions
+        # Filter parameters
         time_filter = request.GET.get("time_filter", "all")
         status_filter = request.GET.getlist("status_filter", ["0", "1", "2", "3"])
         type_filter = request.GET.getlist("type_filter", ["0", "1", "2"])
         sort_order = request.GET.get("sort_order", "desc")
+        page_number = int(request.GET.get("page", 1))
 
         # Timestamp filtering
         current_time = datetime.now()
@@ -60,15 +61,25 @@ def display_table(request):
         # Sorting
         order_clause = "ORDER BY timestamp DESC" if sort_order == "desc" else "ORDER BY timestamp ASC"
 
-        # Execute the query
-        query = f"SELECT * FROM violation {where_clause} {order_clause};"
+        # Pagination setup
+        items_per_page = 10
+        offset = (page_number - 1) * items_per_page
+        limit_clause = f"LIMIT {items_per_page} OFFSET {offset}"
+
+        # Execute the query with pagination
+        query = f"SELECT id, plate_number, status, type, timestamp, location, image_url, drone, is_verified FROM violation {where_clause} {order_clause} {limit_clause};"
         cursor.execute(query)
         data = cursor.fetchall()
-        columns = [desc[0] for desc in cursor.description]
 
-        # Pass filters and sorting to the template
+
+        # Total count for pagination
+        cursor.execute(f"SELECT COUNT(*) FROM violation {where_clause};")
+        total_records = cursor.fetchone()[0]
+        total_pages = (total_records // items_per_page) + (1 if total_records % items_per_page > 0 else 0)
+
+
+        # Pass filters, sorting, and pagination details to the template
         return render(request, "table.html", {
-            "columns": columns,
             "data": data,
             "filters": {
                 "time_filter": time_filter,
@@ -76,12 +87,14 @@ def display_table(request):
                 "type_filter": type_filter,
                 "sort_order": sort_order,
             },
+            "page": page_number,
+            "total_pages": total_pages,
         })
+
     finally:
         cursor.close()
         connection.close()
-
-
+        
 def details(request, row_id):
     session_id = request.COOKIES.get("session_id")
 

@@ -3,72 +3,380 @@
 <head>
     <a href="/auth/logout/">Logout</a>
     <title>Data Table</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700">
+    <style>
+        @import url("https://fonts.googleapis.com/css?family=Montserrat:400,700");
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            --h: 212deg;
+            --l: 43%;
+            --brandColor: hsl(var(--h), 71%, var(--l));
+            font-family: Montserrat, sans-serif;
+            margin: 2%;
+            background-color: whitesmoke;
+        }
+
+        p {
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        ol {
+            list-style: none;
+            counter-reset: list;
+            padding: 0 1rem;
+        }
+
+        li {
+            --stop: calc(100% / var(--length) * var(--i));
+            --l: 62%;
+            --l2: 88%;
+            --h: calc((var(--i) - 1) * (180 / var(--length)));
+            --c1: hsl(var(--h), 71%, var(--l));
+            --c2: hsl(var(--h), 71%, var(--l2));
+            
+            position: relative;
+            counter-increment: list;
+            max-width: 45rem;
+            margin: 2rem auto;
+            padding: 2rem 1rem 1rem;
+            box-shadow: 0.1rem 0.1rem 1.5rem rgba(0, 0, 0, 0.3);
+            border-radius: 0.25rem;
+            overflow: hidden;
+            background-color: white;
+            transition: box-shadow 0.3s ease;
+        }
+
+        li::before {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 1rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: linear-gradient(to right, var(--c1) var(--stop), var(--c2) var(--stop));
+        }
+
+        li:hover {
+            box-shadow: 0.3rem 0.3rem 2rem rgba(0, 0, 0, 0.5);
+        }
+
+        li:hover h3 {
+            text-decoration: none;
+        }
+
+        h3 {
+            display: flex;
+            align-items: baseline;
+            margin: 0 0 1rem;
+            color: rgb(70 70 70);
+            position: relative;
+        }
+
+        h3::before {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 0 0 auto;
+            margin-right: 1rem;
+            width: 3rem;
+            height: 3rem;
+            content: counter(list);
+            padding: 1rem;
+            border-radius: 50%;
+            background-color: var(--c1);
+            color: white;
+        }
+
+        h3:after {
+            content: "";
+            display: block;
+            height: 2px;
+            width: 0;
+            background: var(--brandColor);
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+
+        li:hover h3:after {
+            width: 100%;
+            left: 0;
+        }
+
+        @media (min-width: 40em) {
+            li {
+                margin: 3rem auto;
+                padding: 3rem 2rem 2rem;
+            }
+            
+            h3 {
+                font-size: 2.25rem;
+                margin: 0 0 2rem;
+            }
+            
+            h3::before {
+                margin-right: 1.5rem;
+            }
+        }
+
+        nav {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        nav a {
+            margin: 0 0.5rem;
+            text-decoration: none;
+            color: hsl(212, 71%, 43%);
+            font-weight: bold;
+        }
+
+        nav a.disabled {
+            color: gray;
+            pointer-events: none;
+        }
+
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            margin-right: 16px;
+        }
+
+        .dropdown-toggle {
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
+            width: 150px;
+            text-align: left;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            width: 150px;
+        }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Selected item tick */
+        .selected .checkmark {
+            color: green;
+        }
+
+        /* Show dropdown when active */
+        .dropdown.active .dropdown-menu {
+            display: block;
+        }
+
+        li a {
+            text-decoration: none; /* Removes underline */
+            color: black;          /* Sets text color to black */
+            display: block;        /* Ensures the <a> tag behaves like a block element */
+        }
+
+        li a h3 {
+            color: black;          /* Ensures h3 inside <a> retains black color */
+        }
+
+        li a:hover h3::after {
+            width: 100%;           /* Expands underline effect on hover */
+            left: 0;
+        }
+
+
+    </style>
 </head>
 <body>
     <h1>Data Table</h1>
 
     <!-- Filter and Sort Form -->
     <form method="GET" action="/">
-        <!-- Time Filter -->
-        <label for="time_filter">Time:</label>
-        <select name="time_filter" id="time_filter">
-            <option value="all" {% if filters.time_filter == 'all' %}selected{% endif %}>All Time</option>
-            <option value="today" {% if filters.time_filter == 'today' %}selected{% endif %}>Today</option>
-            <option value="past_week" {% if filters.time_filter == 'past_week' %}selected{% endif %}>Past Week</option>
-            <option value="past_month" {% if filters.time_filter == 'past_month' %}selected{% endif %}>Past Month</option>
-            <option value="past_year" {% if filters.time_filter == 'past_year' %}selected{% endif %}>Past Year</option>
-        </select>
 
-        <!-- Status Filter -->
-        <label for="status_filter">Status:</label>
-        <select name="status_filter" id="status_filter" multiple>
-            <option value="0" {% if "0" in filters.status_filter %}selected{% endif %}>0</option>
-            <option value="1" {% if "1" in filters.status_filter %}selected{% endif %}>1</option>
-            <option value="2" {% if "2" in filters.status_filter %}selected{% endif %}>2</option>
-            <option value="3" {% if "3" in filters.status_filter %}selected{% endif %}>3</option>
-        </select>
+    <!-- Time Filter Dropdown -->
+    <div class="dropdown">
+        <button class="dropdown-toggle" type="button" id="time_dropdown">
+            Time
+        </button>
+        <div class="dropdown-menu" id="time_options">
+            <div data-value="all" class="dropdown-item {% if filters.time_filter == 'all' %}selected{% endif %}">
+                All Time <span class="checkmark">{% if filters.time_filter == 'all' %}✔{% endif %}</span>
+            </div>
+            <div data-value="today" class="dropdown-item {% if filters.time_filter == 'today' %}selected{% endif %}">
+                Today <span class="checkmark">{% if filters.time_filter == 'today' %}✔{% endif %}</span>
+            </div>
+            <div data-value="past_week" class="dropdown-item {% if filters.time_filter == 'past_week' %}selected{% endif %}">
+                Past Week <span class="checkmark">{% if filters.time_filter == 'past_week' %}✔{% endif %}</span>
+            </div>
+            <div data-value="past_month" class="dropdown-item {% if filters.time_filter == 'past_month' %}selected{% endif %}">
+                Past Month <span class="checkmark">{% if filters.time_filter == 'past_month' %}✔{% endif %}</span>
+            </div>
+            <div data-value="past_year" class="dropdown-item {% if filters.time_filter == 'past_year' %}selected{% endif %}">
+                Past Year <span class="checkmark">{% if filters.time_filter == 'past_year' %}✔{% endif %}</span>
+            </div>
+        </div>
+    </div>
 
-        <!-- Type Filter -->
-        <label for="type_filter">Type:</label>
-        <select name="type_filter" id="type_filter" multiple>
-            <option value="0" {% if "0" in filters.type_filter %}selected{% endif %}>0</option>
-            <option value="1" {% if "1" in filters.type_filter %}selected{% endif %}>1</option>
-            <option value="2" {% if "2" in filters.type_filter %}selected{% endif %}>2</option>
-        </select>
+        <!-- Status Filter Dropdown -->
+        <div class="dropdown">
+            <button class="dropdown-toggle" type="button" id="status_dropdown">
+                Status
+            </button>
+            <div class="dropdown-menu" id="status_options">
+                <div data-value="0" class="dropdown-item {% if '0' in filters.status_filter %}selected{% endif %}">
+                    0 <span class="checkmark">{% if '0' in filters.status_filter %}✔{% endif %}</span>
+                </div>
+                <div data-value="1" class="dropdown-item {% if '1' in filters.status_filter %}selected{% endif %}">
+                    1 <span class="checkmark">{% if '1' in filters.status_filter %}✔{% endif %}</span>
+                </div>
+                <div data-value="2" class="dropdown-item {% if '2' in filters.status_filter %}selected{% endif %}">
+                    2 <span class="checkmark">{% if '2' in filters.status_filter %}✔{% endif %}</span>
+                </div>
+                <div data-value="3" class="dropdown-item {% if '3' in filters.status_filter %}selected{% endif %}">
+                    3 <span class="checkmark">{% if '3' in filters.status_filter %}✔{% endif %}</span>
+                </div>
+            </div>
+        </div>
 
-        <!-- Sort Order -->
-        <label for="sort_order">Sort:</label>
-        <select name="sort_order" id="sort_order">
-            <option value="desc" {% if filters.sort_order == 'desc' %}selected{% endif %}>Recent -> Old</option>
-            <option value="asc" {% if filters.sort_order == 'asc' %}selected{% endif %}>Old -> Recent</option>
-        </select>
+        <!-- Type Filter Dropdown -->
+        <div class="dropdown">
+            <button class="dropdown-toggle" type="button" id="type_dropdown">
+                Type
+            </button>
+            <div class="dropdown-menu" id="type_options">
+                <div data-value="0" class="dropdown-item {% if '0' in filters.type_filter %}selected{% endif %}">
+                    0 <span class="checkmark">{% if '0' in filters.type_filter %}✔{% endif %}</span>
+                </div>
+                <div data-value="1" class="dropdown-item {% if '1' in filters.type_filter %}selected{% endif %}">
+                    1 <span class="checkmark">{% if '1' in filters.type_filter %}✔{% endif %}</span>
+                </div>
+                <div data-value="2" class="dropdown-item {% if '2' in filters.type_filter %}selected{% endif %}">
+                    2 <span class="checkmark">{% if '2' in filters.type_filter %}✔{% endif %}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sort Order Dropdown -->
+        <div class="dropdown">
+            <button class="dropdown-toggle" type="button" id="sort_dropdown">
+                Sort
+            </button>
+            <div class="dropdown-menu" id="sort_options">
+                <div data-value="desc" class="dropdown-item {% if filters.sort_order == 'desc' %}selected{% endif %}">
+                    Recent -> Old <span class="checkmark">{% if filters.sort_order == 'desc' %}✔{% endif %}</span>
+                </div>
+                <div data-value="asc" class="dropdown-item {% if filters.sort_order == 'asc' %}selected{% endif %}">
+                    Old -> Recent <span class="checkmark">{% if filters.sort_order == 'asc' %}✔{% endif %}</span>
+                </div>
+            </div>
+        </div>
 
         <!-- Submit Button -->
         <button type="submit">Apply</button>
     </form>
 
     <!-- Data Table -->
-    <table border="1">
-        <thead>
-            <tr>
-                {% for column in columns %}
-                    <th>{{ column }}</th>
-                {% endfor %}
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in data %}
-                <tr>
-                    {% for cell in row %}
-                        <td>{{ cell }}</td>
-                    {% endfor %}
-                    <td>
-                        <a href="/details/{{ row.0 }}/">Details</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <ol style="--length: {{ data|length }}" role="list">
+        {% for row in data %}
+        <li style="--i: {{ forloop.counter }}">
+            <a href="/details/{{ row.0 }}/">
+                <h3>{{ row.1 }}</h3> <!-- Title is plate number -->
+                <p>Status: {{ row.2 }}</p>
+                <p>Type: {{ row.3 }}</p>
+                <p>Timestamp: {{ row.4 }}</p>
+                <p>Location: {{ row.5 }}</p>
+                <p>Drone: {{ row.7 }}</p>
+            </a>
+                <!-- Display Verification Status -->
+                {% if row.8 %}
+                    <p style="color: green;">Verified</p>
+                {% else %}
+                    <p style="color: red;">Not Verified</p>
+                {% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+
+    <!-- Pagination -->
+    <nav>
+        {% if page > 1 %}
+            <a href="/?page={{ page|add:-1 }}">Previous</a>
+        {% else %}
+            <a class="disabled">Previous</a>
+        {% endif %}
+
+        <span>Page {{ page }} of {{ total_pages }}</span>
+
+        {% if page < total_pages %}
+            <a href="/?page={{ page|add:1 }}">Next</a>
+        {% else %}
+            <a class="disabled">Next</a>
+        {% endif %}
+    </nav>
+
+        <script>
+            // Handle dropdown toggle
+            document.querySelectorAll('.dropdown-toggle').forEach(button => {
+                button.addEventListener('click', function () {
+                    const dropdown = this.parentElement;
+                    dropdown.classList.toggle('active');
+                });
+            });
+
+            // Handle single selection for "Time" and "Sort"
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    const parentDropdown = this.closest('.dropdown-menu');
+
+                    // Remove 'selected' class and checkmark from all siblings
+                    parentDropdown.querySelectorAll('.dropdown-item').forEach(option => {
+                        option.classList.remove('selected');
+                        option.querySelector('.checkmark').textContent = '';
+                    });
+
+                    // Mark the clicked item as selected
+                    this.classList.add('selected');
+                    this.querySelector('.checkmark').textContent = '✔';
+
+                    // Update dropdown label with selected option text
+                    const dropdownButton = parentDropdown.parentElement.querySelector('.dropdown-toggle');
+                    dropdownButton.textContent = this.textContent.trim();
+
+                    // Close dropdown
+                    parentDropdown.parentElement.classList.remove('active');
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown').forEach(dropdown => {
+                        dropdown.classList.remove('active');
+                    });
+                }
+            });
+        </script>
 </body>
 </html>
