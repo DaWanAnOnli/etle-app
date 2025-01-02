@@ -30,6 +30,7 @@ def display_table(request):
         time_filter = request.GET.get("time_filter", "all")
         status_filter = request.GET.getlist("status_filter", ["0", "1", "2", "3"])
         type_filter = request.GET.getlist("type_filter", ["0", "1", "2"])
+        is_verified_filter = request.GET.getlist("is_verified_filter", ["0", "1"]) 
         sort_order = request.GET.get("sort_order", "desc")
         page_number = int(request.GET.get("page", 1))
 
@@ -53,6 +54,18 @@ def display_table(request):
         # Type filtering
         type_conditions = ",".join(type_filter)
         query_conditions.append(f"type IN ({type_conditions})")
+
+        # is_verified filtering - cast integers to boolean
+        is_verified_filter = request.GET.getlist("is_verified_filter", ["0", "1"])
+        if is_verified_filter:
+            bool_conditions = []
+            if "1" in is_verified_filter:
+                bool_conditions.append("true")
+            if "0" in is_verified_filter:
+                bool_conditions.append("false")
+            if bool_conditions:
+                query_conditions.append(f"is_verified IN ({','.join(bool_conditions)})")
+
 
         # Combine all conditions
         where_clause = " AND ".join(query_conditions)
@@ -85,6 +98,7 @@ def display_table(request):
                 "time_filter": time_filter,
                 "status_filter": status_filter,
                 "type_filter": type_filter,
+                "is_verified_filter": is_verified_filter, # Add this line
                 "sort_order": sort_order,
             },
             "page": page_number,

@@ -27,9 +27,10 @@
             font-weight: 500;
         }
         .image-container {
-            max-height: 300px; 
+            max-height: 300px;
             margin-bottom: 1rem;
             overflow: auto;
+            cursor: zoom-in;
         }
         .image-container img {
             max-width: 100%;
@@ -37,6 +38,53 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             display: block;
+        }
+        .fullscreen-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .fullscreen-modal img {
+            position: absolute;
+            top: 5%;
+            left: 5%;
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .fullscreen-modal img:active {
+            cursor: grabbing;
+        }
+        .zoom-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: #fff;
+            font-family: sans-serif;
+        }
+        .zoom-controls button {
+            background: #007acc;
+            border: none;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            margin: 0.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .zoom-controls label {
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+        .zoom-controls input[type="range"] {
+            vertical-align: middle;
         }
         table {
             width: 100%;
@@ -72,10 +120,10 @@
             color: #fff;
         }
         button[name="action"][value="confirm"] {
-            background: #28a745; /* Green */
+            background: #28a745;
         }
         button[name="action"][value="deny"] {
-            background: #dc3545; /* Red */
+            background: #dc3545;
         }
         a {
             color: #007acc;
@@ -91,12 +139,32 @@
             background: #f5f5f5;
             color: #007acc;
             border: 2px solid #007acc;
-            border-radius: 50px; /* tube shape */
+            border-radius: 50px;
             transition: 0.2s;
             text-decoration: none;
         }
         .back-button:hover {
             background: #e0e0e0;
+        }
+
+        .navigation-controls {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            color: #fff;
+        }
+
+        .navigation-controls label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navigation-controls input[type="range"] {
+            width: 200px;
         }
     </style>
 </head>
@@ -109,12 +177,9 @@
                 {% for column, value in details_data %}
                     {% if column == 'image_url' and value %}
                         <div class="image-container">
-                            <a href="{{ value }}" target="_blank">
-                                <img src="{{ value }}" alt="Page Image">
-                            </a>
+                            <img src="{{ value }}" alt="Page Image" onclick="openFullscreen(this)">
                         </div>
                     {% endif %}
-                    
                     {% if column != 'image_url' %}
                         <tr>
                             <th>
@@ -151,5 +216,136 @@
             <button type="submit" name="action" value="deny">Deny</button>
         </form>
     </div>
+
+    <!-- Fullscreen Modal -->
+    <div id="fullscreenModal" class="fullscreen-modal">
+        <img id="fullscreenImg" src="" alt="Fullscreen Image">
+        <div class="zoom-controls">
+            <button onclick="zoomIn()">+</button>
+            <button onclick="zoomOut()">-</button>
+            <label>
+                Zoom
+                <input type="range" id="zoomRange" min="100" max="300" step="10" value="100" oninput="updateZoom()">
+            </label>
+            <label>
+                Brightness
+                <input type="range" id="brightnessRange" min="100" max="200" step="10" value="100" oninput="updateBrightness()">
+            </label>
+            <button onclick="closeFullscreen()">Close</button>
+        </div>
+        <div class="navigation-controls">
+            <label>
+                Horizontal
+                <input type="range" id="horizontalRange" min="-100" max="100" value="0" oninput="updatePosition()">
+            </label>
+            <label>
+                Vertical  
+                <input type="range" id="verticalRange" min="-100" max="100" value="0" oninput="updatePosition()">
+            </label>
+        </div>
+    </div>
+
+    <script>
+        let currentScale = 1;
+        const scaleStep = 0.1;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+
+        function updatePosition() {
+            const horizontal = document.getElementById('horizontalRange').value;
+            const vertical = document.getElementById('verticalRange').value;
+            offsetX = horizontal * 1;
+            offsetY = vertical * 1;
+            applyTransforms();
+        }
+
+        function openFullscreen(el) {
+            const modal = document.getElementById('fullscreenModal');
+            const fullscreenImg = document.getElementById('fullscreenImg');
+            fullscreenImg.src = el.src;
+            modal.style.display = 'block';
+            resetTransforms();
+        }
+
+        function closeFullscreen() {
+            document.getElementById('fullscreenModal').style.display = 'none';
+        }
+
+        function resetTransforms() {
+            currentScale = 1;
+            offsetX = 0;
+            offsetY = 0;
+            const img = document.getElementById('fullscreenImg');
+            img.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${currentScale})`;
+            img.style.filter = 'none';
+            document.getElementById('zoomRange').value = 100;
+            document.getElementById('brightnessRange').value = 100;
+            document.getElementById('horizontalRange').value = 0;
+            document.getElementById('verticalRange').value = 0;
+        }
+
+        function zoomIn() {
+            currentScale += scaleStep;
+            applyTransforms();
+        }
+
+        function zoomOut() {
+            if (currentScale > scaleStep) {
+                currentScale -= scaleStep;
+                applyTransforms();
+            }
+        }
+
+        function updateZoom() {
+            const val = document.getElementById('zoomRange').value;
+            currentScale = val / 100;
+            applyTransforms();
+        }
+
+        function updateBrightness() {
+            const val = document.getElementById('brightnessRange').value;
+            document.getElementById('fullscreenImg').style.filter = `brightness(${val}%)`;
+        }
+
+        function applyTransforms() {
+            const img = document.getElementById('fullscreenImg');
+            img.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${currentScale})`;
+        }
+
+        const fsImg = document.getElementById('fullscreenImg');
+
+        fsImg.addEventListener('mousedown', e => {
+            isDragging = true;
+            fsImg.style.cursor = 'grabbing';
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+
+        fsImg.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            const dx = e.clientX - lastMouseX;
+            const dy = e.clientY - lastMouseY;
+            offsetX += dx;
+            offsetY += dy;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            applyTransforms();
+        });
+
+        fsImg.addEventListener('mouseup', () => {
+            isDragging = false;
+            fsImg.style.cursor = 'grab';
+        });
+
+        fsImg.addEventListener('mouseleave', () => {
+            if (isDragging) {
+                isDragging = false;
+                fsImg.style.cursor = 'grab';
+            }
+        });
+    </script>
 </body>
 </html>
