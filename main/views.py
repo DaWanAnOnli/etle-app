@@ -120,8 +120,10 @@ def details(request, row_id):
             action = request.POST.get('action')
             if action == 'confirm':
                 cursor.execute("UPDATE violation SET status = 1 WHERE id = %s", (row_id,))
+                cursor.execute("UPDATE violation SET is_verified = True WHERE id = %s", (row_id,))
             elif action == 'deny':
                 cursor.execute("UPDATE violation SET status = 2 WHERE id = %s", (row_id,))
+                cursor.execute("UPDATE violation SET is_verified = True WHERE id = %s", (row_id,))
             connection.commit()
             return redirect('/')
 

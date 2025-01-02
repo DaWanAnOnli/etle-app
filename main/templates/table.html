@@ -416,6 +416,8 @@
                 </div>
             </div>
 
+
+
             <!-- Sort Order -->
             <div class="dropdown">
                 <button type="button" class="dropdown-toggle">Sort</button>
@@ -424,6 +426,20 @@
                     <div data-value="asc">Old -> Recent</div>
                 </div>
                 <input type="hidden" name="sort_order" value="{{ filters.sort_order }}">
+            </div>
+
+            <div class="dropdown">
+                <button type="button" class="dropdown-toggle">Verification</button>
+                <div class="dropdown-menu">
+                    <label>
+                        <input type="checkbox" name="is_verified_filter" value="1" {% if '1' in filters.is_verified_filter %}checked{% endif %}>
+                        Verified
+                    </label>
+                    <label>
+                        <input type="checkbox" name="is_verified_filter" value="0" {% if '0' in filters.is_verified_filter %}checked{% endif %}>
+                        Not Verified
+                    </label>
+                </div>
             </div>
 
             <button type="submit" class="submit-btn">Apply Filters</button>
