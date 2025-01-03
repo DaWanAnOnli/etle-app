@@ -59,7 +59,6 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-
         .fullscreen-modal img:active {
             cursor: grabbing;
         }
@@ -146,7 +145,6 @@
         .back-button:hover {
             background: #e0e0e0;
         }
-
         .navigation-controls {
             position: absolute;
             bottom: 1rem;
@@ -156,15 +154,33 @@
             gap: 1rem;
             color: #fff;
         }
-
         .navigation-controls label {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
         .navigation-controls input[type="range"] {
             width: 200px;
+        }
+        .status-box {
+            display: inline-block;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .status-0 {
+            background-color: red;
+        }
+        .status-1 {
+            background-color: blue;
+        }
+        .status-2 {
+            background-color: blue;
+        }
+        .status-3 {
+            background-color: green;
         }
     </style>
 </head>
@@ -179,16 +195,11 @@
                         <div class="image-container">
                             <img src="{{ value }}" alt="Page Image" onclick="openFullscreen(this)">
                         </div>
-                    {% endif %}
-                    {% if column != 'image_url' %}
+                    {% elif column != 'type' and column != 'status' and column != 'image_url' %}
                         <tr>
                             <th>
-                                {% if column == 'status' %}
-                                    <span class="icon">❓</span>
-                                {% elif column == 'id' %}
+                                {% if column == 'id' %}
                                     <span class="icon">🪪</span>
-                                {% elif column == 'type' %}
-                                    <span class="icon">⚠️</span>
                                 {% elif column == 'plate_number' %}
                                     <span class="icon">🚗</span>
                                 {% elif column == 'timestamp' %}
@@ -197,8 +208,6 @@
                                     <span class="icon">📍</span>
                                 {% elif column == 'drone' %}
                                     <span class="icon">✈</span>
-                                {% elif column == 'is_verified' %}
-                                    <span class="icon">✅</span>
                                 {% else %}
                                     <span class="icon">❔</span>
                                 {% endif %}
@@ -208,8 +217,33 @@
                         </tr>
                     {% endif %}
                 {% endfor %}
+
+                <!-- Type row -->
+                <tr>
+                    <th><span class="icon">⚠️</span>Type</th>
+                    <td>
+                        {% if type_value == 0 %}Tidak Memakai Helm
+                        {% elif type_value == 1 %}Bonceng lebih dari dua
+                        {% elif type_value == 2 %}Plat Nomor Invalid
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <!-- Status row -->
+                <tr>
+                    <th>
+                        <div class="status-box {{ status_class }}">
+                            {% if status_value == 0 %}Unverified
+                            {% elif status_value == 1 %}Verified to be Violation 
+                            {% elif status_value == 2 %}Verified to be Not a Violation
+                            {% elif status_value == 3 %}Finished
+                            {% endif %}
+                        </div>
+                    </th>
+                </tr>
             </tbody>
         </table>
+
         <form method="POST" class="button-group">
             {% csrf_token %}
             <button type="submit" name="action" value="confirm">Confirm</button>
@@ -239,7 +273,7 @@
                 <input type="range" id="horizontalRange" min="-100" max="100" value="0" oninput="updatePosition()">
             </label>
             <label>
-                Vertical  
+                Vertical
                 <input type="range" id="verticalRange" min="-100" max="100" value="0" oninput="updatePosition()">
             </label>
         </div>

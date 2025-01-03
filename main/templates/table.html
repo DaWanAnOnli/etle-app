@@ -349,6 +349,31 @@
             color: white;          
             display: block;        
         }
+
+        .status-box {
+            display: inline-block;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .status-0 {
+            background-color: red;
+        }
+
+        .status-1 {
+            background-color: blue;
+        }
+
+        .status-2 {
+            background-color: blue;
+        }
+
+        .status-3 {
+            background-color: green;
+        }
     </style>
 </head>
 <body>
@@ -374,28 +399,7 @@
                 <input type="hidden" name="time_filter" value="{{ filters.time_filter }}">
             </div>
 
-            <!-- Status Filter -->
-            <div class="dropdown">
-                <button type="button" class="dropdown-toggle">Status</button>
-                <div class="dropdown-menu">
-                    <label>
-                        <input type="checkbox" name="status_filter" value="0" {% if '0' in filters.status_filter %}checked{% endif %}>
-                        Status 0
-                    </label>
-                    <label>
-                        <input type="checkbox" name="status_filter" value="1" {% if '1' in filters.status_filter %}checked{% endif %}>
-                        Status 1
-                    </label>
-                    <label>
-                        <input type="checkbox" name="status_filter" value="2" {% if '2' in filters.status_filter %}checked{% endif %}>
-                        Status 2
-                    </label>
-                    <label>
-                        <input type="checkbox" name="status_filter" value="3" {% if '3' in filters.status_filter %}checked{% endif %}>
-                        Status 3
-                    </label>
-                </div>
-            </div>
+
 
             <!-- Type Filter -->
             <div class="dropdown">
@@ -403,15 +407,15 @@
                 <div class="dropdown-menu">
                     <label>
                         <input type="checkbox" name="type_filter" value="0" {% if '0' in filters.type_filter %}checked{% endif %}>
-                        Type 0
+                        Didn't Use a Helmet
                     </label>
                     <label>
                         <input type="checkbox" name="type_filter" value="1" {% if '1' in filters.type_filter %}checked{% endif %}>
-                        Type 1
+                        More than 2 Passengers
                     </label>
                     <label>
                         <input type="checkbox" name="type_filter" value="2" {% if '2' in filters.type_filter %}checked{% endif %}>
-                        Type 2
+                        Invalid Licence Plate Number
                     </label>
                 </div>
             </div>
@@ -429,15 +433,23 @@
             </div>
 
             <div class="dropdown">
-                <button type="button" class="dropdown-toggle">Verification</button>
+                <button type="button" class="dropdown-toggle">Status</button>
                 <div class="dropdown-menu">
                     <label>
-                        <input type="checkbox" name="is_verified_filter" value="1" {% if '1' in filters.is_verified_filter %}checked{% endif %}>
-                        Verified
+                        <input type="checkbox" name="status_filter" value="0" {% if '0' in filters.status_filter %}checked{% endif %}>
+                        Unverified
                     </label>
                     <label>
-                        <input type="checkbox" name="is_verified_filter" value="0" {% if '0' in filters.is_verified_filter %}checked{% endif %}>
-                        Not Verified
+                        <input type="checkbox" name="status_filter" value="1" {% if '1' in filters.status_filter %}checked{% endif %}>
+                        Verified Violation
+                    </label>
+                    <label>
+                        <input type="checkbox" name="status_filter" value="2" {% if '2' in filters.status_filter %}checked{% endif %}>
+                        Verified Not Violation
+                    </label>
+                    <label>
+                        <input type="checkbox" name="status_filter" value="3" {% if '3' in filters.status_filter %}checked{% endif %}>
+                        Finished
                     </label>
                 </div>
             </div>
@@ -449,29 +461,49 @@
     <!-- Data Table -->
     <ol style="--length: {{ data|length }}" role="list">
         {% for row in data %}
-        <li style="--i: {{ forloop.counter }}">
-            {% if row.8 %}
-            <a>
-                <h3>{{ row.1 }}</h3>
-                <p>Status: {{ row.2 }}</p>
-                <p>Type: {{ row.3 }}</p>
-                <p>Timestamp: {{ row.4 }}</p>
-                <p>Location: {{ row.5 }}</p>
-                <p>Drone: {{ row.7 }}</p>
-            </a>
-                <p style="color: green;">Verified</p>
-            {% else %}
-            <a href="/details/{{ row.0 }}/">
-                <h3>{{ row.1 }}</h3>
-                <p>Status: {{ row.2 }}</p>
-                <p>Type: {{ row.3 }}</p>
-                <p>Timestamp: {{ row.4 }}</p>
-                <p>Location: {{ row.5 }}</p>
-                <p>Drone: {{ row.7 }}</p>
-            </a>
-                <p style="color: red;">Not Verified</p>
-            {% endif %}
-        </li>
+            <li style="--i: {{ forloop.counter }}">
+                {% if row.2 == 3 %}
+                    <h3>{{ row.1 }}</h3>
+                    <p>
+                        Type:
+                        {% if row.3 == 0 %}Didn't Use a Helmet
+                        {% elif row.3 == 1 %}More than 2 Passengers
+                        {% elif row.3 == 2 %}Invalid Licence Plate Number
+                        {% endif %}
+                    </p>
+                    <p>Timestamp: {{ row.4 }}</p>
+                    <p>Location: {{ row.5 }}</p>
+                    <p>Drone: {{ row.7 }}</p>
+                    <div class="status-box status-{{ row.2 }}">
+                        {% if row.2 == 0 %}Unverified
+                        {% elif row.2 == 1 %}Verified to be Violation
+                        {% elif row.2 == 2 %}Verified to be Not a Violation
+                        {% elif row.2 == 3 %}Finished
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <a href="/details/{{ row.0 }}/">
+                        <h3>{{ row.1 }}</h3>
+                        <p>
+                            Type:
+                            {% if row.3 == 0 %}Didn't Use a Helmet
+                            {% elif row.3 == 1 %}More than 2 Passengers
+                            {% elif row.3 == 2 %}Invalid Licence Plate Number
+                            {% endif %}
+                        </p>
+                        <p>Timestamp: {{ row.4 }}</p>
+                        <p>Location: {{ row.5 }}</p>
+                        <p>Drone: {{ row.7 }}</p>
+                        <div class="status-box status-{{ row.2 }}">
+                            {% if row.2 == 0 %}Unverified
+                            {% elif row.2 == 1 %}Verified to be Violation
+                            {% elif row.2 == 2 %}Verified to be Not a Violation
+                            {% elif row.2 == 3 %}Finished
+                            {% endif %}
+                        </div>
+                    </a>
+                {% endif %}
+            </li>
         {% endfor %}
     </ol>
 

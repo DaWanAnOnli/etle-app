@@ -9,26 +9,25 @@ CREATE TABLE violation (
     timestamp TIMESTAMP,
     location TEXT,
     image_url TEXT, 
-    drone TEXT,
-    is_verified BOOLEAN 
+    drone TEXT
 );
 
-INSERT INTO violation (status, type, plate_number, timestamp, location, image_url, drone, is_verified)
+INSERT INTO violation (status, type, plate_number, timestamp, location, image_url, drone)
 VALUES 
-(1, 0, 'B1234XYZ', NOW(), 'Surabaya', 'https://drive.google.com/file/d/1IwrTKNDrGUhRgpiYcXG2nTy8OhF_YL7G/view?usp=drive_link', 'Drone A', TRUE),
-(2, 1, 'D5678ABC', NOW(), 'Jakarta', 'https://drive.google.com/file/d/1wYcWgNkCDyAT0toR3iGV9awKwoyeponc/view?usp=drive_link', 'Drone B', FALSE),
-(3, 1, 'F4321CBA', NOW(), 'Medan', 'https://drive.google.com/file/d/172dzrdX_7nOt1N24pnb9uyFCy54O3alw/view?usp=drive_link', 'Drone A', FALSE),
-(2, 2, 'N1CE', NOW(), 'Jakarta Barat', 'https://drive.google.com/file/d/VIDEO_ID_4/view?usp=sharing', 'Drone B', TRUE),
-(3, 1, 'B2GUD', NOW(), 'Semarang', 'https://drive.google.com/file/d/VIDEO_ID_5/view?usp=sharing', 'Drone C', FALSE),
-(1, 2, 'D4DU', NOW(), 'Bali', 'https://drive.google.com/file/d/VIDEO_ID_6/view?usp=sharing', 'Drone D', FALSE),
-(0, 0, 'A123ABC', NOW(), 'Banten', 'https://drive.google.com/file/d/VIDEO_ID_7/view?usp=sharing', 'Drone C', FALSE),
-(0, 2, 'B2222BBB', NOW(), 'Bandung', 'https://drive.google.com/file/d/VIDEO_ID_8/view?usp=sharing', 'Drone C', TRUE),
-(2, 1, 'A1111AAA', NOW(), 'Bogor', 'https://drive.google.com/file/d/VIDEO_ID_9/view?usp=sharing', 'Drone B', FALSE),
-(1, 1, 'D4444DDD', NOW(), 'Depok', 'https://drive.google.com/file/d/VIDEO_ID_10/view?usp=sharing', 'Drone A', FALSE),
-(3, 0, 'H4LO', NOW(), 'Jakarta', 'https://drive.google.com/file/d/VIDEO_ID_11/view?usp=sharing', 'Drone D', TRUE),
-(2, 2, 'B4321ZYX', NOW(), 'Jogja', 'https://drive.google.com/file/d/1IwrTKNDrGUhRgpiYcXG2nTy8OhF_YL7G/view?usp=drive_link', 'Drone A', TRUE),
-(1, 2, 'D8765CBA', NOW(), 'Jakarta Selatan', 'https://drive.google.com/file/d/1wYcWgNkCDyAT0toR3iGV9awKwoyeponc/view?usp=drive_link', 'Drone B', FALSE),
-(3, 0, 'F2121ABA', NOW(), 'Medan', 'https://drive.google.com/file/d/172dzrdX_7nOt1N24pnb9uyFCy54O3alw/view?usp=drive_link', 'Drone A', FALSE);
+(1, 0, 'B1234XYZ', NOW(), 'Surabaya', 'https://drive.google.com/file/d/1IwrTKNDrGUhRgpiYcXG2nTy8OhF_YL7G/view?usp=drive_link', 'Drone A'),
+(2, 1, 'D5678ABC', NOW(), 'Jakarta', 'https://drive.google.com/file/d/1wYcWgNkCDyAT0toR3iGV9awKwoyeponc/view?usp=drive_link', 'Drone B'),
+(3, 1, 'F4321CBA', NOW(), 'Medan', 'https://drive.google.com/file/d/172dzrdX_7nOt1N24pnb9uyFCy54O3alw/view?usp=drive_link', 'Drone A'),
+(2, 2, 'N1CE', NOW(), 'Jakarta Barat', 'https://drive.google.com/file/d/VIDEO_ID_4/view?usp=sharing', 'Drone B'),
+(3, 1, 'B2GUD', NOW(), 'Semarang', 'https://drive.google.com/file/d/VIDEO_ID_5/view?usp=sharing', 'Drone C'),
+(1, 2, 'D4DU', NOW(), 'Bali', 'https://drive.google.com/file/d/VIDEO_ID_6/view?usp=sharing', 'Drone D'),
+(0, 0, 'A123ABC', NOW(), 'Banten', 'https://drive.google.com/file/d/VIDEO_ID_7/view?usp=sharing', 'Drone C'),
+(0, 2, 'B2222BBB', NOW(), 'Bandung', 'https://drive.google.com/file/d/VIDEO_ID_8/view?usp=sharing', 'Drone C'),
+(2, 1, 'A1111AAA', NOW(), 'Bogor', 'https://drive.google.com/file/d/VIDEO_ID_9/view?usp=sharing', 'Drone B'),
+(1, 1, 'D4444DDD', NOW(), 'Depok', 'https://drive.google.com/file/d/VIDEO_ID_10/view?usp=sharing', 'Drone A'),
+(3, 0, 'H4LO', NOW(), 'Jakarta', 'https://drive.google.com/file/d/VIDEO_ID_11/view?usp=sharing', 'Drone D'),
+(2, 2, 'B4321ZYX', NOW(), 'Jogja', 'https://drive.google.com/file/d/1IwrTKNDrGUhRgpiYcXG2nTy8OhF_YL7G/view?usp=drive_link', 'Drone A'),
+(1, 2, 'D8765CBA', NOW(), 'Jakarta Selatan', 'https://drive.google.com/file/d/1wYcWgNkCDyAT0toR3iGV9awKwoyeponc/view?usp=drive_link', 'Drone B'),
+(3, 0, 'F2121ABA', NOW(), 'Medan', 'https://drive.google.com/file/d/172dzrdX_7nOt1N24pnb9uyFCy54O3alw/view?usp=drive_link', 'Drone A');
 
 
 CREATE TABLE users (

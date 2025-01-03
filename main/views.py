@@ -30,7 +30,6 @@ def display_table(request):
         time_filter = request.GET.get("time_filter", "all")
         status_filter = request.GET.getlist("status_filter", ["0", "1", "2", "3"])
         type_filter = request.GET.getlist("type_filter", ["0", "1", "2"])
-        is_verified_filter = request.GET.getlist("is_verified_filter", ["0", "1"]) 
         sort_order = request.GET.get("sort_order", "desc")
         page_number = int(request.GET.get("page", 1))
 
@@ -55,18 +54,6 @@ def display_table(request):
         type_conditions = ",".join(type_filter)
         query_conditions.append(f"type IN ({type_conditions})")
 
-        # is_verified filtering - cast integers to boolean
-        is_verified_filter = request.GET.getlist("is_verified_filter", ["0", "1"])
-        if is_verified_filter:
-            bool_conditions = []
-            if "1" in is_verified_filter:
-                bool_conditions.append("true")
-            if "0" in is_verified_filter:
-                bool_conditions.append("false")
-            if bool_conditions:
-                query_conditions.append(f"is_verified IN ({','.join(bool_conditions)})")
-
-
         # Combine all conditions
         where_clause = " AND ".join(query_conditions)
         where_clause = f"WHERE {where_clause}" if where_clause else ""
@@ -80,31 +67,29 @@ def display_table(request):
         limit_clause = f"LIMIT {items_per_page} OFFSET {offset}"
 
         # Execute the query with pagination
-        query = f"SELECT id, plate_number, status, type, timestamp, location, image_url, drone, is_verified FROM violation {where_clause} {order_clause} {limit_clause};"
+        query = (
+            "SELECT id, plate_number, status, type, timestamp, location, image_url, drone "
+            f"FROM violation {where_clause} {order_clause} {limit_clause};"
+        )
         cursor.execute(query)
         data = cursor.fetchall()
-
 
         # Total count for pagination
         cursor.execute(f"SELECT COUNT(*) FROM violation {where_clause};")
         total_records = cursor.fetchone()[0]
-        total_pages = (total_records // items_per_page) + (1 if total_records % items_per_page > 0 else 0)
+        total_pages = (total_records // items_per_page) + (1 if total_records % items_per_page else 0)
 
-
-        # Pass filters, sorting, and pagination details to the template
         return render(request, "table.html", {
             "data": data,
             "filters": {
                 "time_filter": time_filter,
                 "status_filter": status_filter,
                 "type_filter": type_filter,
-                "is_verified_filter": is_verified_filter, # Add this line
                 "sort_order": sort_order,
             },
             "page": page_number,
             "total_pages": total_pages,
         })
-
     finally:
         cursor.close()
         connection.close()
@@ -134,10 +119,8 @@ def details(request, row_id):
             action = request.POST.get('action')
             if action == 'confirm':
                 cursor.execute("UPDATE violation SET status = 1 WHERE id = %s", (row_id,))
-                cursor.execute("UPDATE violation SET is_verified = True WHERE id = %s", (row_id,))
             elif action == 'deny':
                 cursor.execute("UPDATE violation SET status = 2 WHERE id = %s", (row_id,))
-                cursor.execute("UPDATE violation SET is_verified = True WHERE id = %s", (row_id,))
             connection.commit()
             return redirect('/')
 
@@ -146,10 +129,27 @@ def details(request, row_id):
         row = cursor.fetchone()
         columns = [desc[0] for desc in cursor.description]
 
+        # Extract type and status values
+        type_value = None
+        status_value = None
+        status_class = None
+        
+        for i, column in enumerate(columns):
+            if column == 'type':
+                type_value = row[i]
+            elif column == 'status':
+                status_value = row[i]
+                status_class = f"status-{row[i]}"
+
         # Prepare zipped data
         details_data = zip(columns, row)
 
-        return render(request, "details.html", {"details_data": details_data})
+        return render(request, "details.html", {
+            "details_data": details_data,
+            "type_value": type_value,
+            "status_value": status_value,
+            "status_class": status_class
+        })
     finally:
         cursor.close()
         connection.close()
