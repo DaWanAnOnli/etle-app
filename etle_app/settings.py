@@ -80,8 +80,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'etle_app',
-        'USER': 'postgres',  # Replace with your PostgreSQL username
-        'PASSWORD': 'abcd',      # Replace with your PostgreSQL password
+        'USER': 'joel',  # Replace with your PostgreSQL username
+        'PASSWORD': 'ik4nkus',      # Replace with your PostgreSQL password
         'HOST': 'localhost',
         'PORT': '5432', # Replace with your IP (default: 5432)
     }
